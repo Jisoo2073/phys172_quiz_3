@@ -1,0 +1,824 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#f5f6f2">
+<title>PHYS 172 · 각운동량 퀴즈</title>
+<style>
+:root {
+  color-scheme: light;
+  --ink: #182824;
+  --muted: #506359;
+  --paper: #f5f6f2;
+  --line: #dce4dd;
+  --green: #17624e;
+  --mint: #e6f4eb;
+  --red: #a3312a;
+  --rose: #fff0ee;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  color: var(--ink);
+  background: var(--paper);
+  font: 16px/1.65 "DM Sans", "Noto Sans KR", system-ui, sans-serif;
+}
+button { font: inherit; cursor: pointer; }
+button:focus-visible, [tabindex="-1"]:focus-visible { outline: 3px solid #528dce; outline-offset: 4px; }
+button:disabled { cursor: default; }
+[hidden] { display: none !important; }
+.shell { width: min(960px, calc(100% - 40px)); margin: auto; }
+header { border-bottom: 1px solid var(--line); }
+.topbar { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 65px; }
+.brand { display: flex; align-items: center; gap: 11px; font-size: .86rem; font-weight: 750; letter-spacing: .08em; }
+.brand-icon {
+  display: grid; place-items: center; width: 34px; height: 34px;
+  border-radius: 10px; background: var(--green); color: white; font: 21px Georgia, serif;
+}
+.course { color: var(--muted); font-size: .78rem; }
+.intro { margin: 42px 0 23px; }
+h1 { margin: 0; font-size: clamp(2rem, 1.5rem + 2.7vw, 3.45rem); line-height: 1.15; letter-spacing: -.065em; }
+.intro p { margin: 10px 0 0; color: var(--muted); }
+.controls, .actions { display: flex; flex-wrap: wrap; align-items: center; gap: 9px; }
+.controls { margin-bottom: 25px; }
+.btn {
+  min-height: 44px; padding: 8px 15px; border: 1px solid var(--line);
+  border-radius: 10px; background: #fff; color: var(--ink); font-weight: 650; font-size: .9rem;
+}
+.btn:hover:not(:disabled) { border-color: var(--green); background: var(--mint); }
+.btn:disabled { color: #64726a; background: #edf0eb; }
+.primary { background: var(--green); border-color: var(--green); color: white; }
+.primary:hover:not(:disabled) { background: #114c3c; color: white; }
+.count { margin-left: 5px; font-variant-numeric: tabular-nums; }
+.layout { display: grid; grid-template-columns: minmax(0, 1fr) 224px; gap: 16px; align-items: start; padding-bottom: 42px; }
+.card, aside {
+  border: 1px solid var(--line); border-radius: 17px; background: #fff;
+  box-shadow: 0 8px 24px #18282408;
+}
+.card { padding: clamp(18px, 4vw, 32px); min-width: 0; }
+aside { padding: 19px; }
+.topline { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 6px 12px; }
+.meta { font-size: .82rem; font-weight: 700; color: var(--muted); }
+.mode { padding: 3px 9px; border-radius: 6px; color: var(--green); background: var(--mint); }
+h2 { margin: 17px 0 20px; font-size: clamp(1.12rem, 1rem + .55vw, 1.4rem); line-height: 1.62; letter-spacing: -.025em; overflow-wrap: anywhere; }
+h3 { margin: 0; font-size: .9rem; }
+.progress-label { display: flex; justify-content: space-between; align-items: baseline; gap: 6px; }
+progress { display: block; width: 100%; height: 9px; margin-top: 10px; border: 0; border-radius: 9px; overflow: hidden; background: #e9eee9; accent-color: var(--green); }
+progress::-webkit-progress-bar { background: #e9eee9; }
+progress::-webkit-progress-value { background: var(--green); }
+progress::-moz-progress-bar { background: var(--green); }
+.stats { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin: 14px 0 0; }
+.stats div, .metric { background: var(--paper); padding: 9px 11px; border-radius: 9px; }
+.stats dt, .metric span { color: var(--muted); font-size: .78rem; }
+.stats dd { margin: 0; font-size: 1.2rem; font-weight: 750; }
+.helper { margin: 0 0 13px; font-size: .87rem; color: var(--muted); }
+.options { display: grid; gap: 8px; }
+.option {
+  display: flex; align-items: center; gap: 11px; width: 100%; min-height: 51px;
+  padding: 10px 12px; background: white; border: 1px solid var(--line); border-radius: 10px;
+  text-align: left; color: var(--ink); overflow-wrap: anywhere;
+}
+.option:hover:not(:disabled), .option[aria-pressed="true"] { background: var(--mint); border-color: var(--green); }
+.option.correct { background: var(--mint); border-color: var(--green); }
+.option.incorrect { background: var(--rose); border-color: var(--red); }
+.letter { flex: 0 0 26px; width: 26px; height: 26px; display: grid; place-items: center; border-radius: 6px; background: #f0f3ef; font-weight: 750; font-size: .8rem; }
+.option-state { margin-left: auto; flex: 0 0 auto; font-size: .76rem; font-weight: 750; }
+.feedback { margin: 17px 0 0; padding: 14px 16px; border-radius: 10px; background: #eef3f0; border-left: 4px solid var(--green); }
+.feedback.bad { background: var(--rose); border-color: var(--red); }
+.feedback p { margin: 6px 0 0; white-space: pre-wrap; overflow-wrap: anywhere; }
+.actions { margin-top: 17px; }
+.results { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 17px 0; }
+.metric strong { display: block; font-size: clamp(1.45rem, 4vw, 2.1rem); letter-spacing: -.035em; line-height: 1.35; }
+@media (max-width: 685px) {
+  .shell { width: calc(100% - 28px); }
+  .intro { margin-top: 28px; }
+  .layout { display: flex; flex-direction: column; gap: 12px; }
+  .card, aside { width: 100%; }
+  aside { order: -1; padding: 12px 14px; }
+  .stats { display: none; }
+}
+@media (max-width: 350px) {
+  .course { display: none; }
+  .controls .btn { flex: 1 1 auto; }
+  .option { gap: 7px; }
+}
+</style>
+</head>
+<body>
+<header><div class="shell topbar">
+  <div class="brand"><span class="brand-icon" aria-hidden="true">L</span> PHYS 172</div>
+  <div class="course" lang="en">Angular Momentum Principle</div>
+</div></header>
+<main class="shell">
+  <div class="intro">
+    <h1>각운동량 퀴즈</h1>
+    <p id="intro-count"></p>
+  </div>
+  <nav class="controls" aria-label="출제 방식">
+    <button type="button" class="btn" id="sequential">순서대로 풀기</button>
+    <button type="button" class="btn" id="random">랜덤 출제</button>
+    <button type="button" class="btn" id="wrong">오답 노트 <span class="count" id="wrong-count">0</span></button>
+  </nav>
+  <div class="layout">
+    <section class="card" aria-label="퀴즈">
+      <div class="topline">
+        <span class="meta" id="reference"></span>
+        <span class="meta mode" id="mode"></span>
+      </div>
+      <h2 id="question" tabindex="-1"></h2>
+      <p class="helper" id="hint" hidden></p>
+      <div class="options" id="options"></div>
+      <div class="feedback" id="feedback" role="status" aria-live="polite" hidden>
+        <h3 id="verdict"></h3>
+        <p id="explanation"></p>
+      </div>
+      <div class="results" id="results" hidden>
+        <div class="metric"><span>총점</span><strong id="score"></strong></div>
+        <div class="metric"><span>정답률</span><strong id="accuracy"></strong></div>
+      </div>
+      <div class="actions" id="actions"></div>
+    </section>
+    <aside aria-label="학습 진행">
+      <div class="progress-label"><h3>진행률</h3><span class="meta" id="progress-label"></span></div>
+      <progress id="progress" aria-label="채점한 문제 수" value="0" max="1"></progress>
+      <dl class="stats">
+        <div><dt>정답</dt><dd id="total-correct">0</dd></div>
+        <div><dt>오답</dt><dd id="total-wrong">0</dd></div>
+      </dl>
+    </aside>
+  </div>
+</main>
+<script>
+// PHYS 172 · Angular Momentum Principle · 문제지의 한국어 정리
+// 서술형은 options: [], answer: null이며 풀이에 정답이 있습니다.
+// 단일 선택은 0부터 시작하는 인덱스, 복수 선택은 인덱스 배열입니다.
+// 같은 번호 안에 서술형과 선택형이 있는 경우 해당 소문항을 별도 항목으로 분리했습니다.
+const quizData = [
+  {
+    "question": "[10.1-P-03] 관성모멘트가 19 kg·m²이고 회전 각운동량의 크기가 36 kg·m²/s인 물체의 회전 운동에너지는 얼마인가?",
+    "options": [],
+    "answer": null,
+    "explanation": "[AI 정답 및 해설] 34.1 J. K=L²/(2I)=36²/(2×19)."
+  },
+  {
+    "question": "[10.1-P-04] 길이 0.32 m인 가벼운 막대의 양 끝에 각각 0.82 kg인 공 두 개가 있고, 중심에서 좌우 0.08 m에 각각 0.29 kg인 공 두 개가 있다. 막대는 중심을 지나는 수직 축을 중심으로 0.9 s마다 한 바퀴 돈다(그림 10.14.A). (a) 관성모멘트, (b) 각속력, (c) 회전 각운동량의 크기를 구하라.",
+    "options": [],
+    "answer": null,
+    "explanation": "[AI 정답 및 해설] (a) I=2(0.82)(0.16²)+2(0.29)(0.08²)=0.045696 kg·m². (b) ω=2π/0.9=6.98 rad/s. (c) L=Iω=0.319 kg·m²/s."
+  },
+  {
+    "question": "[10.1-P-05] 질량 6 kg, 반지름 0.15 m인 균일 원판이 중심축을 기준으로 0.5 s마다 한 바퀴 돈다. I=MR²/2이다. (a) 관성모멘트, (b) 회전 운동에너지, (c) 회전 각운동량의 크기를 구하라.",
+    "options": [],
+    "answer": null,
+    "explanation": "[AI 정답 및 해설] (a) I=MR²/2=0.0675 kg·m². ω=4π rad/s. (b) K=Iω²/2=5.33 J. (c) L=Iω=0.848 kg·m²/s."
+  },
+  {
+    "question": "[10.1-P-06] 길이 0.30 m인 가벼운 막대의 양 끝에 각각 1.7 kg인 공이 있다. 중심은 원점이며 막대는 yz 평면에서 0.5 s마다 한 바퀴 돈다. +x축에서 원점을 바라보면 시계 방향이다. (a) 관성모멘트, (b) 회전 각운동량 벡터, (c) 회전 운동에너지를 구하라.",
+    "options": [],
+    "answer": null,
+    "explanation": "[제공 답안 기반 · answer(1)] (a) I=2(1.7)(0.15²)=0.0765 kg·m². (b) L=⟨−0.961,0,0⟩ kg·m²/s. +x 방향에서 시계 방향이므로 −x이다. (c) K=I(4π)²/2=6.04 J."
+  },
+  {
+    "question": "[10.2-P-01] 외적 (5î+3ĵ)×(−4î+2ĵ)를 계산하라.",
+    "options": [],
+    "answer": null,
+    "explanation": "[AI 정답 및 해설] 22k̂. î×î와 ĵ×ĵ는 0이고 î×ĵ=k̂, ĵ×î=−k̂이므로 10k̂+12k̂=22k̂."
+  },
+  {
+    "question": "[10.3-P-01] 그림 10.14.B의 일곱 힘은 모두 크기 25 N이다. w=9 m, h=14 m, d=13 m이고 +x는 오른쪽, +y는 위, +z는 종이 밖이다. A에 대한 각 힘의 부호 있는 z방향 토크와 알짜 토크를 구하라. (1)은 A 왼쪽 w에서 아래쪽, (2),(3)은 A와 같은 높이에서 왼쪽, (4)–(6)은 A보다 h만큼 아래에서 왼쪽이다. (7)은 A에서 위왼쪽으로 뻗는 길이 d의 위치 벡터에 수직으로 아래왼쪽을 향한다.",
+    "options": [],
+    "answer": null,
+    "explanation": "[AI 정답 및 해설] (1)~(7) 순서로 +225, 0, 0, −350, −350, −350, +325 N·m. 합은 −500 N·m이다. τz=xFy−yFx이며 (7)의 모멘트 팔은 13 m이다."
+  },
+  {
+    "question": "[10.3-P-02] t=15 s에 입자의 A에 대한 각운동량이 ⟨3,5,−2⟩ kg·m²/s이다. A에 대한 일정한 토크 ⟨10,−12,20⟩ N·m가 작용할 때 t=15.1 s의 각운동량은?",
+    "options": [],
+    "answer": null,
+    "explanation": "[제공 답안 기반 · answer(1)] ⟨4,3.8,0⟩ kg·m²/s. ΔL=τΔt=⟨1,−1.2,2⟩이고 이를 초기 각운동량에 더한다."
+  },
+  {
+    "question": "[10.3-P-03] 렌치에 작용하는 힘을 보여 주는 그림 10.14.C에서 rA=3 m, F=8 N, θ=51°이다. (a) A에 대한 토크의 크기와 단위를 구하라. (b) rA에 수직인 힘으로 같은 토크를 만들려면 힘의 크기는 얼마인가?",
+    "options": [],
+    "answer": null,
+    "explanation": "[AI 정답 및 해설] (a) |τ|=3×8 sin51°≈18.65 N·m. (b) F⊥=|τ|/3≈6.22 N."
+  },
+  {
+    "question": "[10.3-P-04] 반지름 8 cm인 원판이 마찰 없는 바닥에 있다. 가장자리에 감긴 줄을 원판 위쪽에서 오른쪽으로 10 N의 힘으로 당긴다. 줄이 24 cm 풀렸을 때 원판 중심에 대한 토크의 크기와 방향은? (그림 10.14.D)",
+    "options": [],
+    "answer": null,
+    "explanation": "[AI 정답 및 해설] τz=−0.80 N·m(종이 안쪽). 접선 방향 힘이므로 지레팔은 0.08 m이다."
+  },
+  {
+    "question": "[10.4-P-01] 그림 10.14.D의 균일한 원판의 질량은 0.4 kg, 반지름은 8 cm이다. 위쪽 접선에서 10 N으로 오른쪽으로 당기고 있으며 현재 각속도는 종이 안쪽 20 rad/s이다. (a) 현재, (b) 0.2 s 후 중심에 대한 각운동량의 크기와 방향을 구하라.",
+    "options": [],
+    "answer": null,
+    "explanation": "[제공 답안 기반 · answer(1)] (a) Lz=−0.0256 kg·m²/s. (b) Lz=−0.1856 kg·m²/s. I=MR²/2이며 ΔLz=(−0.80)(0.2)."
+  },
+  {
+    "question": "[10.4-P-02 (a–d, f)] 시소 왼쪽의 90 kg인 사람은 받침점에서 0.8 m, 오른쪽의 42 kg인 사람은 1.3 m 떨어져 있다. 처음에는 정지해 있고 판 질량은 무시한다(그림 10.14.E). (a,b) 두 사람의 중력 토크, (c) 받침력의 토크, (d) 계의 알짜 토크의 크기와 방향을 구하라. (f) 평형을 이루기 위한 두 번째 사람의 새 거리 d₂는?",
+    "options": [],
+    "answer": null,
+    "explanation": "[AI 정답 및 해설] (a) +705.6 N·m(반시계). (b) −535.1 N·m(시계). (c) 0. 받침력의 작용선이 받침점을 지난다. (d) +170.5 N·m(반시계). (f) d₂=(90×0.8)/42≈1.71 m."
+  },
+  {
+    "question": "[10.4-P-02 (e)] 앞의 시소에 작용하는 알짜 토크로 인해 어떤 일이 일어나는가?",
+    "options": [
+      "시소가 시계 방향으로 돌기 시작한다.",
+      "시소가 반시계 방향으로 돌기 시작한다.",
+      "시소가 움직이지 않는다."
+    ],
+    "answer": 1,
+    "explanation": "[AI 정답 및 해설] 알짜 토크가 +170.5 N·m로 반시계 방향이므로 정지 상태에서 반시계 방향으로 각가속한다."
+  },
+  {
+    "question": "[10.4-P-03 (b)] 길이가 2d=6 m인 판의 중앙이 원통에 닿고, 왼쪽 끝에 5 kg 공이 놓여 있다(그림 10.14.F). (b) 접촉점을 A로 잡아 공과 판의 계에 작용하는 토크의 크기를 구하라.",
+    "options": [],
+    "answer": null,
+    "explanation": "[AI 정답 및 해설] (b) 판이 균일하다고 보면 판의 무게와 받침력의 작용선이 A를 지나므로 공만 토크를 만든다. |τ|=5×9.8×3=147 N·m(반시계)."
+  },
+  {
+    "question": "[10.4-P-03 (c)] 공과 판의 계에서 다음 중 옳은 설명을 모두 선택하라.",
+    "options": [
+      "토크가 있으므로 다음 0.1 s 동안 계의 각운동량이 변한다.",
+      "힘이 평형이므로 A에 대한 계의 각운동량이 변하지 않는다.",
+      "원통이 판에 가하는 힘은 A에 대한 토크에 기여하지 않는다."
+    ],
+    "answer": [
+      0,
+      2
+    ],
+    "explanation": "[AI 정답 및 해설] 공의 무게가 A에 대한 알짜 토크를 만들며, 원통이 가하는 힘은 A에서 작용한다."
+  },
+  {
+    "question": "[10.4-P-04] 축에 고정된 바벨의 중심에서 각각 6 cm에 있는 두 공에 수평 반대 방향으로 크기가 같은 힘이 작용한다. 막대가 수평과 이루는 각은 30°, 각속력은 반시계 방향 60 rad/s이다. 0.001 s 동안 각운동량이 2.5×10⁻⁴ kg·m²/s 증가한다. 각 힘의 크기와 알짜힘을 구하라(그림 10.14.G).",
+    "options": [],
+    "answer": null,
+    "explanation": "[AI 정답 및 해설] 4.17 N씩, 두 힘의 알짜힘은 0. ΔL/Δt=0.25 N·m이며 각 힘의 모멘트 팔은 0.06sin30°=0.030 m이다. 두 토크는 같은 방향이므로 0.25=2F(0.030)."
+  },
+  {
+    "question": "[10.4-P-05] 반지름 0.20 m, I=1.5 kg·m²인 원판의 오른쪽에 감긴 줄을 아래로 25 N으로 당긴다. 시계 방향 각속력이 2 rad/s인 순간으로부터 0.1 s 뒤의 각속력을 구하고 설명하라(그림 10.14.H).",
+    "options": [],
+    "answer": null,
+    "explanation": "[제공 답안 기반 · answer(1)] 2.33 rad/s. 같은 방향의 토크 FR=5 N·m를 0.1 s 동안 가하므로 Δω=FRΔt/I=1/3 rad/s."
+  },
+  {
+    "question": "[10.4-P-06] 질량 1.2 kg, 반지름 0.06 m, I=0.0015 kg·m²인 물체의 줄을 일정한 힘으로 위로 당긴다. 중심 높이는 그대로이고 회전은 빨라진다. 처음 각속력이 12 rad/s일 때 0.1 s 뒤의 각속력을 수치로 구하고 사용한 원리를 설명하라(그림 10.14.I).",
+    "options": [],
+    "answer": null,
+    "explanation": "[AI 정답 및 해설] 59.04 rad/s. 질량중심의 높이가 일정하므로 T=Mg=11.76 N. Δω=TRΔt/I=47.04 rad/s를 초기 12 rad/s에 더한다."
+  },
+  {
+    "question": "[10.4-P-07] 질량 M, 반지름 R, 관성모멘트 I인 물체가 경사각 θ인 경사로에서 미끄럼 없이 구른다. (a) 경사 위쪽 정지 마찰을 포함한 힘·토크 식과 vCM=ωR 조건으로 가속도를 유도하라. (b) 링, 원판, 균일 구 각각의 가속도를 구하라. (c) 같은 반지름의 질량이 다른 링 두 개, 그리고 같은 질량의 링·원판·구가 각각 같은 높이에서 동시에 출발할 때 도착 순서를 구하라. (d) 확장계와 점입자 모델의 에너지 식을 쓰고 시간 미분으로 힘·토크 결과와 일치함을 보여라.",
+    "options": [],
+    "answer": null,
+    "explanation": "[AI 정답 및 해설] (a) Mg sinθ−f=Ma, fR=Iα, a=Rα → a=g sinθ/(1+I/MR²). (b) 링, 원판, 구의 계수는 각각 1/2, 2/3, 5/7이다. (c) 링끼리는 동시에, 다른 세 물체 중에서는 구가 먼저 도착한다. (d) MgΔh=Δ(Mv²/2+Iω²/2). 점입자 식은 Δ(Mv²/2)=(Mg sinθ−f)Δs다. ω=v/R로 시간 미분하면 같은 가속도를 얻는다."
+  },
+  {
+    "question": "[10.4-P-08] 요요는 각각 질량 M, 반지름 R, 두께 d인 바깥쪽 원판 두 장과 질량 m, 반지름 r, 두께 d인 안쪽 원판으로 이루어져 있다. 줄은 안쪽 원판에 감겨 있고 요요는 정지에서 수직으로 떨어진다. 줄의 장력을 구하라. 중심이 y만큼 내려가면 각변위는 y/r이고 ω=vCM/r이다(그림 10.14.J).",
+    "options": [],
+    "answer": null,
+    "explanation": "[AI 정답 및 해설] M=2mo+mi, I=moRo²+miRi²/2. Mg−T=Ma, TRi=I(a/Ri)이므로 T=MgI/(I+MRi²)."
+  },
+  {
+    "question": "[10.4-P-09] 질량 1.2 kg, 반지름 0.11 m인 원판에 중심으로부터 0.14 m인 위치마다 0.4 kg 추 네 개가 달려 있다. 마찰이 거의 없는 바닥에서 정지 상태로 시작해 원판에 감긴 줄을 21 N으로 0.2 s 당긴다. 최종 각속력은? (그림 10.14.K)",
+    "options": [],
+    "answer": null,
+    "explanation": "[제공 답안 기반 · answer(1)] 약 12.0 rad/s(시계 방향). I=(1.2)(0.11²)/2+4(0.4)(0.14²)=0.03862 kg·m². ω=21(0.11)(0.2)/I≈11.96 rad/s."
+  },
+  {
+    "question": "[10.4-P-10] 반지름 R인 균일 고무공이 속력 v, 수평과 60°인 방향으로 거친 바닥에 충돌한다. 공은 처음에 역회전하며 완전 탄성 충돌 후 A와 B 사이를 반복해서 튄다. (a) 필요한 초기 역회전 각속력을 v와 R로 나타내고, (b) 최소 정지 마찰계수를 구하라. 각 충돌에서 회전 방향이 바뀐다.",
+    "options": [],
+    "answer": null,
+    "explanation": "[AI 정답 및 해설] ω=5v/(4R), 충격량 비로 구한 최소 마찰계수는 1/√3≈0.577이다. 수평 속도가 +v/2에서 −v/2로 바뀌어 |Jx|=mv이고, 수직 반발로 Jy=√3mv이다. 스핀도 반전하므로 R|Jx|=2Iω, I=2mR²/5."
+  },
+  {
+    "question": "[10.4-P-11] 바퀴가 200 rpm으로 돈다. (a) 각속력을 rad/s로, (b) 5 s 동안의 각변위를 rad로, (c) 같은 각변위를 도 단위로 구하라.",
+    "options": [],
+    "answer": null,
+    "explanation": "[AI 정답 및 해설] (a) 20π/3≈20.94 rad/s. (b) 100π/3≈104.72 rad. (c) 6000°. 한 바퀴는 2π rad=360°이고 5 s 동안 200×5/60바퀴 돈다."
+  },
+  {
+    "question": "[10.4-P-12] 원점이 중심인 바퀴가 z축에서 +z 방향으로 30 rad/s로 회전한다. t=4.20 s에 테두리 점이 ⟨0.25,0,0⟩ m에 있다. t=4.26 s의 위치를 구하라.",
+    "options": [],
+    "answer": null,
+    "explanation": "[AI 정답 및 해설] ⟨−0.0568,0.2435,0⟩ m. 각변위는 30(4.26−4.20)=1.8 rad이고 좌표는 ⟨0.25cos1.8,0.25sin1.8,0⟩이다."
+  },
+  {
+    "question": "[10.4-P-13] 바퀴가 일정하게 가속하여 3 s 동안 각속력이 24 rad/s에서 36 rad/s가 된다. (a) 각가속도, (b) 평균 각속력, (c) 각변위(rad), (d) 각변위(°)를 구하라.",
+    "options": [],
+    "answer": null,
+    "explanation": "[제공 답안 기반 · answer(1)] (a) α=(36−24)/3=4 rad/s². (b) 평균 30 rad/s. (c) 90 rad. (d) 90×180/π≈5157°."
+  },
+  {
+    "question": "[10.4-P-14] 정지한 반지름 25 cm 바퀴의 고정축 주위에 감긴 줄을 40 cm 당겼다. 바퀴의 각변위를 rad와 °로 구하라.",
+    "options": [],
+    "answer": null,
+    "explanation": "[AI 정답 및 해설] 1.60 rad≈91.7°. 풀린 줄 길이 s=Rθ이다."
+  },
+  {
+    "question": "[10.4-P-15] 반지름 30 cm 바퀴가 10 rev/s로 돈다. (a) 각속력을 rad/s로, (b) 6 s 동안의 각변위를 rad로 구하라. t=10 s부터 각가속도가 1.4 rad/s²이다. (c) t=15 s의 각속력, (d) t=10~15 s 각변위, (e) 미끄러짐 없이 구를 때 같은 시간 동안 중심이 이동한 거리를 구하라.",
+    "options": [],
+    "answer": null,
+    "explanation": "[AI 정답 및 해설] (a) 20π≈62.83 rad/s. (b) 120π≈376.99 rad. (c) 20π+7≈69.83 rad/s. (d) 100π+17.5≈331.66 rad. (e) 거리=0.30×331.66≈99.50 m."
+  },
+  {
+    "question": "[10.4-P-16] 10.4-P-05를 풀고 그 0.1 s 동안 원판이 돈 각도를 rad와 °로 구하라.",
+    "options": [],
+    "answer": null,
+    "explanation": "[AI 정답 및 해설] ωf=2.333 rad/s, Δθ=2(0.1)+(25×0.2/1.5)(0.1²)/2=0.2167 rad≈12.41°."
+  },
+  {
+    "question": "[10.4-P-17] 10.4-P-08을 풀고 요요의 각변위를 rad와 °로 수치 계산하라.",
+    "options": [],
+    "answer": null,
+    "explanation": "[AI 정답 및 해설] 정지에서 떨어지는 거리 y가 주어지면 Δθ=y/Ri rad=180y/(πRi)°. 시간이 주어지면 y=at²/2, a=g/(1+I/MRi²). 수치 답에는 거리나 시간이 추가로 필요하다."
+  },
+  {
+    "question": "[10.4-P-18] 10.4-P-07을 풀고 물체의 각변위를 rad와 °로 수치 계산하라.",
+    "options": [],
+    "answer": null,
+    "explanation": "[AI 정답 및 해설] 미끄럼 없이 경사로를 s만큼 이동하면 Δθ=s/R rad=180s/(πR)°. 정지에서 시간 t 동안이면 s=at²/2이며 a는 P-07에서 구한다. 수치 답에는 주행 거리 또는 시간과 반지름 등이 필요하다."
+  },
+  {
+    "question": "[10.4-P-19] 같은 질량과 반지름을 가진 균일한 고체구와 얇은 속 빈 구가 수평면에서 중심 사이 거리 L만큼 떨어져 정지해 있다. 반지름은 L에 비해 매우 작다. 두 구는 전기력으로 서로 끌려 미끄럼 없이 구른다. 충돌할 때까지 고체구가 이동한 거리는?",
+    "options": [],
+    "answer": null,
+    "explanation": "[제공 답안 기반 · answer(1)] 약 25L/46≈0.543L. 구름을 반영한 유효질량은 고체구 7m/5, 속 빈 구 5m/3이다. 같은 크기의 인력을 받으므로 고체구가 전체 접근 거리의 25/46을 이동한다. L이 중심 간 거리라면 유한 반지름을 포함한 값은 25(L−2R)/46이다."
+  },
+  {
+    "question": "[10.4-P-20] 반지름 R인 구슬이 처음 속력 v로 수평 탁자 위를 미끄러지며 역회전한다. 운동 마찰계수는 일정하다. (a) 구슬이 완전히 정지할 때 초기 역회전 각속력을 v와 R로 나타내라. (b) 구슬이 미끄러지다가 원래 위치 쪽으로 속력 (3/7)v로 구를 때 초기 각속력은?",
+    "options": [],
+    "answer": null,
+    "explanation": "[AI 정답 및 해설] (a) 5v/(2R). (b) 4v/R. 최종 속도가 −u인 경우 I(ω₀−ωf)=mR(v+u)이므로 ω₀=u/R+5(v+u)/(2R)이다. u=0 또는 u=3v/7을 대입한다."
+  },
+  {
+    "question": "[10.5-P-01] rA=⟨9,−9,0⟩ m, p=⟨12,10,0⟩ kg·m/s일 때 A에 대한 각운동량은?",
+    "options": [],
+    "answer": null,
+    "explanation": "[AI 정답 및 해설] ⟨0,0,198⟩ kg·m²/s. Lz=rxpy−rypx=9(10)−(−9)(12)=198이다."
+  },
+  {
+    "question": "[10.5-P-02] 각각 0.50 kg인 두 공이 0.20 m 길이의 가벼운 막대 양 끝에 달려 중심 A를 기준으로 시계 방향 80 rad/s로 회전한다(그림 10.14.L). 두 공으로 보면 (a) 공 1의 속력, (b,c) A에 대한 각 공의 병진 각운동량, (d) 전체 각운동량, (e,f) 각 공의 병진 운동에너지, (g) 합계를 구하라. 한 바벨로 보면 (h) 관성모멘트, (i) 각속도 벡터, (j) 회전 각운동량, (k) 회전 운동에너지를 구하라. (l,m) 두 방식의 전체 각운동량과 에너지를 각각 비교하라.",
+    "options": [],
+    "answer": null,
+    "explanation": "[AI 정답 및 해설] 각 공의 속력 8 m/s, Lz는 각각 −0.4 kg·m²/s, 합은 −0.8 kg·m²/s. 각 공의 에너지는 16 J, 합은 32 J. 바벨로 계산하면 I=0.01 kg·m²이고 Lz=I(−80)=−0.8, K=I(80²)/2=32 J. 질량중심이 축에 고정되어 두 방식의 결과가 같다. (i) 각속도 벡터는 −80 ẑ rad/s이다."
+  },
+  {
+    "question": "[10.5-P-03] A에서 물체로 향하는 위치 벡터가 ⟨6,6,0⟩ m, 운동량이 ⟨−11,13,0⟩ kg·m/s일 때 A에 대한 각운동량은?",
+    "options": [],
+    "answer": null,
+    "explanation": "[제공 답안 기반 · answer(1)] ⟨0,0,144⟩ kg·m²/s. r×p의 z성분은 6(13)−6(−11)=144이다."
+  },
+  {
+    "question": "[10.5-P-04] 그림 10.14.M의 일곱 입자의 운동량 크기는 모두 25 kg·m/s이며 w=18 m, h=28 m, d=27 m이다. (1)–(3)은 A보다 h 위에서 오른쪽, (4)는 A보다 w 왼쪽에서 위, (5),(6)은 A와 같은 높이에서 오른쪽으로 움직인다. (7)은 A에서 아래오른쪽으로 향하는 길이 d의 위치 벡터에 수직으로 위오른쪽을 향한다. A에 대한 각 입자의 Lz를 구하라.",
+    "options": [],
+    "answer": null,
+    "explanation": "[AI 정답 및 해설] (1)~(7)의 Lz는 각각 −700, −700, −700, −450, 0, 0, +675 kg·m²/s이다. Lz=xpy−ypx를 쓰고 (7)은 r과 p가 수직이므로 +dp이다."
+  },
+  {
+    "question": "[10.5-P-05] 태양 중심 A를 도는 혜성이 위치 1에서 거리 d₁, 운동량 크기 p₁이고, 위치 2에서 거리 d₂, 운동량 크기 p₂이다(그림 10.14.N). 각 위치에서 (a,c) 각운동량의 방향과 (b,d) 크기를 구하라. 위치 1의 각도는 α, 위치 2의 각도는 β이다.",
+    "options": [],
+    "answer": null,
+    "explanation": "[AI 정답 및 해설] (a,c) 두 지점 모두 +z(종이 밖). (b) d₁p₁sinα. (d) d₂p₂sinβ. 지름 방향인 태양 중력의 토크는 태양 중심에 대해 0이어서 두 각운동량은 같다."
+  },
+  {
+    "question": "[10.5-P-06] 반지름 24 m인 관람차는 중심 A를 기준으로 20 s마다 한 바퀴 돈다. 맨 아래 F에서 40 kg 아이의 속도는 ⟨7.5,0,0⟩ m/s이다. (a) p, (b) r, (c) |LA|, (d) r과 p의 평면, (e) 오른손 법칙으로 Lz, (f) xpy와 ypx로 Lz를 구하라. (g) 위치 E에서 r=⟨16.971,−16.971,0⟩ m, v=⟨5.303,5.303,0⟩ m/s일 때 |LA|는?",
+    "options": [],
+    "answer": null,
+    "explanation": "[AI 정답 및 해설] (a) ⟨300,0,0⟩ kg·m/s. (b) ⟨0,−24,0⟩ m. (c) 7200 kg·m²/s. (d) xy 평면. (e) +7200 kg·m²/s. (f) xpy=0, ypx=−7200이므로 Lz=+7200. (g) 두 벡터는 여전히 수직이므로 반올림 오차 내에서 7200이다."
+  },
+  {
+    "question": "[10.5-P-07] 질량 m인 물체가 공기저항 없이 지표 부근에서 낙하한다. 지면의 기준점 A는 낙하 경로 왼쪽에서 수평 거리 x에 있다. A에 대한 각운동량의 시간 변화율을 대수식으로 구하라(그림 10.14.P).",
+    "options": [],
+    "answer": null,
+    "explanation": "[AI 정답 및 해설] dL_A/dt=−mgx ẑ. A 오른쪽에 있는 물체의 아래쪽 중력은 A에 대해 시계 방향 토크를 만든다."
+  },
+  {
+    "question": "[10.5-P-08] (a) 태양 중심에 대한 지구 공전 각운동량의 크기, (b) 지구 자전 각운동량의 크기를 추정해 비교하라. 지구 자전축은 공전면의 법선에서 23.5° 기울어져 있다.",
+    "options": [],
+    "answer": null,
+    "explanation": "[AI 정답 및 해설] (a) 지구 공전을 원으로 근사하면 L≈Mrv≈2.66×10⁴⁰ kg·m²/s. (b) 자전을 균일한 구로 근사하면 I=(2/5)MR²이고 L≈7.1×10³³ kg·m²/s. 공전 성분이 약 370만 배 크다. 두 벡터의 방향은 약 23.5° 차이 난다."
+  },
+  {
+    "question": "[10.5-P-09] 각각 0.30 kg인 두 공을 길이 1.5 m의 가벼운 수직 막대가 연결한다. 위·아래 공은 각각 오른쪽으로 38, 60 m/s로 움직이며, 위 공에는 오른쪽으로 41 N, 아래 공에는 왼쪽으로 26 N이 작용한다. A는 아래 공에서 오른쪽 0.70 m, 아래쪽 0.30 m 지점이다(그림 10.14.Q). (a) 총 선운동량, (b) 질량중심 속도, (c) A 기준 전체 각운동량, (d) 회전 각운동량, (e) A 기준 병진 각운동량, (f) 0.23 s 후 총 선운동량을 구하라.",
+    "options": [],
+    "answer": null,
+    "explanation": "[제공 답안 기반 · answer(2)] (a) ⟨29.4,0,0⟩ kg·m/s. (b) ⟨49,0,0⟩ m/s. (c) −25.92 ẑ, (d) +4.95 ẑ, (e) −30.87 ẑ (각각 kg·m²/s). Ltot,A=Σri×pi이고 Ltrans,A=rCM,A×ptot이다. (f) ⟨32.85,0,0⟩ kg·m/s. p에 (41−26)×0.23을 더한다."
+  },
+  {
+    "question": "[10.5-P-10] 각각 0.40 kg인 두 공이 0.60 m의 바벨을 이룬다. 바벨 중심이 길이 0.90 m인 막대 끝에서 B를 기준으로 시계 방향 15 rad/s로 돌고 바벨은 수직 자세를 유지한다(그림 10.14.R). (a) 회전, (b) B에 대한 병진, (c) B에 대한 전체 각운동량 벡터를 구하라.",
+    "options": [],
+    "answer": null,
+    "explanation": "[AI 정답 및 해설] (a) 0. (b,c) −9.72 ẑ kg·m²/s. 바벨의 자세가 고정되어 자체 회전은 0이고 중심의 공전 성분은 −(2m)b²ω ẑ이다."
+  },
+  {
+    "question": "[10.5-P-11] 10.5-P-10과 같은 바벨과 막대에서 막대는 B를 기준으로 시계 방향 15 rad/s로 돌고 바벨 자체도 그 중심에서 시계 방향 20 rad/s로 돈다(그림 10.14.S). (a) 회전, (b) B에 대한 병진, (c) B에 대한 전체 각운동량 벡터를 구하라.",
+    "options": [],
+    "answer": null,
+    "explanation": "[AI 정답 및 해설] (a) −1.44 ẑ, (b) −9.72 ẑ, (c) −11.16 ẑ kg·m²/s. 자체 회전에 I=2m(d/2)²을 쓰고 두 시계 방향 성분을 합한다."
+  },
+  {
+    "question": "[10.6-P-01 (a–c)] 질량 4.8 kg이 테두리에 집중된 반지름 0.9 m의 수직 바퀴에 0.5 kg 점토가 붙는다(그림 10.14.T). (a) 충돌 직전 점토가 5 m/s로 아래쪽, 바퀴가 시계 방향 0.33 rad/s로 돌며 점토는 축 왼쪽 45° 지점에 닿는다. 이 순간의 각운동량을 구하라. (b) 직후 계의 각운동량과 (c) 직후 각속도의 크기·방향을 구하라.",
+    "options": [],
+    "answer": null,
+    "explanation": "[제공 답안 기반 · answer(2)] (a,b) +0.308 ẑ kg·m²/s. 충돌 전 Lz=−MR²(0.33)+m(5)Rsin45°이고, 충돌 중 축의 토크는 0이며 중력 각충격량은 무시한다. (c) ω=L/[(M+m)R²]≈+0.0717 rad/s(반시계). 문제 도입부에는 정지라고 적혀 있지만, 계산은 (a)와 제공 답안이 명시한 충돌 직전의 0.33 rad/s를 사용했다."
+  },
+  {
+    "question": "[10.6-P-01 (d)] 점토가 바퀴에 붙는 충돌에서, 바퀴와 점토 계의 선운동량은 어떻게 변하며 그 이유는 무엇인가?",
+    "options": [
+      "축이 위쪽 힘을 가하므로 아래쪽 선운동량이 감소한다.",
+      "선운동량의 일부가 각운동량으로 바뀐다.",
+      "선운동량의 일부가 에너지로 바뀐다.",
+      "선운동량은 항상 보존되므로 변화가 없다."
+    ],
+    "answer": 0,
+    "explanation": "[제공 답안 기반 · answer(2)] 축이 계에 외부 충격량을 가하므로 선운동량의 아래쪽 성분이 감소한다. 축에 대한 그 힘의 토크는 0이다."
+  },
+  {
+    "question": "[10.6-P-02] 별을 지나는 암석이 처음 거리 4.5×10¹³ m, 운동량 크기 1.35×10¹⁷ kg·m/s이고 두 벡터 사이 각은 126°이다. 나중에는 거리 1.3×10¹³ m에서 반지름 방향과 직각인 −y 방향으로 움직인다. 근처에 다른 큰 물체가 없을 때 최종 운동량 크기를 구하라(그림 10.14.U).",
+    "options": [],
+    "answer": null,
+    "explanation": "[AI 정답 및 해설] 약 3.78×10¹⁷ kg·m/s. 별을 기준으로 R×F=0이므로 p₂=p₁d₁sin126°/d₂이며 두 번째 위치의 각도는 90°이다."
+  },
+  {
+    "question": "[10.6-P-03 (a)] 정지한 8개 공 장치에 점토가 붙는 문제에서, 축에 대한 각운동량에 관해 옳은 설명을 모두 선택하라.",
+    "options": [
+      "충돌 직전 점토의 수직거리 r⊥는 0.4√2/2=0.4cos45° m이다.",
+      "바퀴만의 각운동량은 충돌 직전과 직후가 같다.",
+      "충돌 직전 바퀴의 각운동량은 0이다.",
+      "바퀴의 각운동량은 공 8개의 각운동량을 합한 것이다.",
+      "충돌 직후 바퀴와 점토의 각운동량은 점토의 초기 각운동량과 같다.",
+      "점토가 직선으로 움직이므로 충돌 전 점토의 각운동량은 0이다."
+    ],
+    "answer": [
+      0,
+      2,
+      3,
+      4
+    ],
+    "explanation": "[AI 정답 및 해설] 점토의 운동 직선은 축을 통과하지 않아 초기 각운동량이 있다. 바퀴와 점토 전체의 각운동량은 충돌 동안 축에 대해 거의 일정하다."
+  },
+  {
+    "question": "[10.6-P-03 (b)] 반지름 0.40 m의 장치에는 각각 0.30 kg인 공 8개가 달려 있고 처음 정지해 있다. 0.066 kg 점토가 10 m/s로 수직 낙하해 오른쪽 위 45° 위치의 공에 붙는다(그림 10.14.V). (b) 직후 공 하나의 속력은?",
+    "options": [],
+    "answer": null,
+    "explanation": "[AI 정답 및 해설] (b) 약 0.189 m/s. 충돌 전 |L|=(0.066)(10)(0.4cos45°)≈0.1867 kg·m²/s. 충돌 후 I=(8×0.30+0.066)(0.40²)=0.39456 kg·m²이며 v=R|L|/I이다."
+  },
+  {
+    "question": "[10.6-P-04 (a–c)] 질량 5 kg, 반지름 0.60 m의 균일 원판이 수직 평면 안에서 고정축 주위로 시계 방향 0.51 rad/s로 돈다. 0.40 kg 점토가 아래로 8 m/s로 떨어져 축에 대한 위치 ⟨−0.36,0.480,0⟩ m에 붙는다. 원판+점토 계의 (a) 충돌 직전과 (b) 직후의 각운동량, (c) 직후 원판의 각속도 크기와 방향을 구하라(그림 10.14.W).",
+    "options": [],
+    "answer": null,
+    "explanation": "[AI 정답 및 해설] (a) Lz=0.9(−0.51)+(−0.36)(−3.2)=+0.693 kg·m²/s. (b) 충돌 직후에도 +0.693. (c) I=0.9+0.4(0.6²)=1.044로 ωz=+0.664 rad/s(반시계)."
+  },
+  {
+    "question": "[10.6-P-04 (d)] 점토가 바퀴에 붙는 충돌에서, 바퀴와 점토 계의 선운동량은 어떻게 변하며 그 이유는 무엇인가?",
+    "options": [
+      "선운동량은 항상 보존되므로 변화가 없다.",
+      "선운동량의 일부가 각운동량으로 바뀐다.",
+      "선운동량의 일부가 에너지로 바뀐다.",
+      "축이 위쪽 힘을 가하므로 아래쪽 선운동량이 감소한다."
+    ],
+    "answer": 3,
+    "explanation": "[AI 정답 및 해설] 축이 계에 외부 충격량을 가하므로 선운동량의 아래쪽 성분이 감소한다. 축에 대한 그 힘의 토크는 0이다."
+  },
+  {
+    "question": "[10.6-P-05] 길이 0.49 m인 가벼운 막대 양끝에 왼쪽 0.484 kg, 오른쪽 0.273 kg 공을 매달았다. 막대가 수평인 채 정지하도록 줄 하나로 매달 때 (a) 지지 줄의 장력, (b) 왼쪽에서 줄을 붙일 위치를 구하라.",
+    "options": [],
+    "answer": null,
+    "explanation": "[제공 답안 기반 · answer(2)] (a) T=(0.484+0.273)g≈7.42 N. (b) 왼쪽에서 x=0.49(0.273)/(0.484+0.273)≈0.177 m. 지지점이 질량중심에 있으면 두 무게의 토크가 상쇄된다."
+  },
+  {
+    "question": "[10.6-P-06] 혜성이 태양에 가장 가까운 지점에서 거리 r₁, 속력 v₁이다. 이후 거리 r₂에서 반지름 벡터와 속도 벡터 사이 각이 θ이다. 이때 속력 v₂를 구하고 설명하라(그림 10.14.X).",
+    "options": [],
+    "answer": null,
+    "explanation": "[AI 정답 및 해설] v₂=r₁v₁/(r₂sinθ). 최근접점에서는 속도가 반지름에 수직이고, 태양 중력의 토크가 0이다."
+  },
+  {
+    "question": "[10.6-P-07] 회전 의자에서 바벨을 양손에 들고 팔을 수평으로 뻗은 상태로 2 s마다 한 바퀴 돈다. 바벨을 몸 가까이 당기면 (a) 새 회전 주기, (b) 사용한 에너지는 얼마인가? 모델과 가정을 명시해 추정하라.",
+    "options": [],
+    "answer": null,
+    "explanation": "[AI 정답 및 해설] 예시로 몸의 I를 4 kg·m², 각 바벨을 2 kg, 몸에서의 거리를 0.70 m→0.20 m로 두면 Ii=5.96, If=4.16. Tf=2If/Ii≈1.40 s. ωi=π, L=Iiωi. 몸이 한 일의 추정값은 L²(1/If−1/Ii)/2≈12.7 J."
+  },
+  {
+    "question": "[10.6-P-08] 다이버가 플랫폼을 떠나 몸을 웅크려 세 바퀴 돌고 몸을 편 뒤 입수한다. 총 체공시간은 1.4 s이다. 모델과 추정값을 명시하고 입수 직전 각속력을 수치로 추정하라(그림 10.14.Y).",
+    "options": [],
+    "answer": null,
+    "explanation": "[AI 정답 및 해설] 예시로 1.4 s 대부분을 웅크렸다고 두면 ωtuck≈6π/1.4=13.46 rad/s. 몸을 펴면 I가 4배가 된다고 가정할 경우 입수 직전 ω≈3.4 rad/s. 외부 토크가 무시될 때 Iω가 일정하다."
+  },
+  {
+    "question": "[10.6-P-09] 스케이터가 팔과 한쪽 다리를 뻗고 1 s마다 한 바퀴 돈다. 팔을 머리 위로 올리고 다리를 몸쪽으로 당겼다. (a) 새 주기, (b) 자세를 바꾸는 데 필요한 최소 화학에너지를 가정을 밝혀 추정하라(그림 10.14.Z).",
+    "options": [],
+    "answer": null,
+    "explanation": "[AI 정답 및 해설] 예시로 Ii=5, If=2 kg·m²라면 Tf=1×2/5=0.40 s. ωi=2π, L=10π. 최소 화학에너지 추정은 회전 에너지 증가량 L²(1/If−1/Ii)/2≈148 J이다. 관성모멘트 추정에 따라 값이 달라진다."
+  },
+  {
+    "question": "[10.7-P-01] 마찰이 작은 축의 막대가 정지 상태에서 토크를 받는다. (a) PDF 13쪽의 VPython 뼈대 코드(M=2, 길이=1, R=0.1, Δt=0.0001 s)에 각운동량과 각도 갱신을 추가하라. τz=2 N·m로 2 s 진행한 뒤 θ, |ω|, |ω|/θ를 출력해 예측과 비교하라. (b) θ(t), |ω(t)| 그래프를 비교하라. (c) τz=3cos(5t)로 바꿔 θ의 주기를 측정하라. (d) Krot과 |τ|를 함께 그려 최대 시점을 비교하라.",
+    "options": [],
+    "answer": null,
+    "explanation": "[AI 정답 및 해설] (a) I=0.17167 kg·m². ΔL=τΔt, ω=L/I, Δθ=ωΔt. t=2 s에서 ω≈23.30 rad/s, θ≈23.30 rad, ω/θ=2/t=1 s⁻¹. (b) θ는 포물선, ω는 직선. (c) τz=3cos(5t)에서 θ=3(1−cos(5t))/(25I), 주기는 2π/5≈1.26 s. (d) K∝sin²(5t), |τ|∝|cos(5t)|라서 최대 시점이 다르다. VPython 루프의 핵심 추가 코드는 다음과 같다.\nL = L + torque*deltat\nomega = L/I\ndtheta = omega.z*deltat\nrod.rotate(angle=dtheta, axis=vector(0,0,1), origin=vector(-0.5,0,0))\ntheta = theta + dtheta"
+  },
+  {
+    "question": "[10.7-P-02] 10.7-P-01 프로그램에서 축에 일정한 힘 F=⟨0.1,0,0⟩ N을 가한다. 7 s까지 실행하고 관찰 결과를 설명하라.",
+    "options": [],
+    "answer": null,
+    "explanation": "[제공 답안 기반 · answer(2)] 축에 힘을 추가하면 질량중심이 가속하고 회전 진동은 유지된다. F=0.1 N, M=2 kg이면 a=0.05 m/s², 7 s에서 이동거리 1.225 m. 힘이 축을 지나므로 질량중심에 대한 토크는 0이다. 각 스텝에서 p += force*deltat 후 dp_pos = (p/M)*deltat를 막대와 축의 위치에 모두 더한다. 회전 중심도 이동한 축의 중심으로 맞춘다."
+  },
+  {
+    "question": "[10.9-P-01] 보어 수소 모형에서 두 번째 들뜬 상태(n=3) 전자의 양성자에 대한 병진 각운동량 크기는?",
+    "options": [],
+    "answer": null,
+    "explanation": "[AI 정답 및 해설] 3ℏ≈3.16×10⁻³⁴ kg·m²/s. 두 번째 들뜬 상태는 n=3이며 보어 모형에서 L=nℏ이다."
+  },
+  {
+    "question": "[10.9-P-02] CO의 (a) 양자화된 회전 에너지 준위(j=0,1,2,…)를 필요한 값과 함께 추정하라. (b) 회전 전이의 방출 스펙트럼을 설명하고 최저 에너지 광자의 에너지를 eV로 구하라. (c) 전자 에너지 준위에 회전·진동 부준위가 있으면 가시광 스펙트럼이 띠를 이루는 이유를 설명하라.",
+    "options": [],
+    "answer": null,
+    "explanation": "[AI 정답 및 해설] 결합 길이를 1.13×10⁻¹⁰ m로 추정하면 I=μr²≈1.45×10⁻⁴⁶ kg·m². Ej=ℏ²j(j+1)/(2I). 인접 준위 방출 에너지는 jℏ²/I이고 최저 에너지는 약 4.8×10⁻⁴ eV. 전자 전이마다 많은 회전·진동 부준위 전이가 근접해 띠를 이룬다."
+  },
+  {
+    "question": "[10.9-P-03] 보어 모형을 He⁺에 적용해 바닥 상태와 첫 들뜬 상태의 에너지, 첫 들뜬 상태에서 바닥 상태로 갈 때 방출 광자의 에너지를 eV로 구하라. 수소와 비교하라.",
+    "options": [],
+    "answer": null,
+    "explanation": "[제공 답안 기반 · answer(2)] E₁=−54.4 eV, E₂=−13.6 eV, 방출 광자는 40.8 eV. 보어 모형에서 En=−13.6Z²/n² eV이고 He⁺는 Z=2이므로 수소의 해당 에너지와 전이 에너지의 크기가 4배다."
+  },
+  {
+    "question": "[10.9-P-04] (a) 양성자 Z개인 핵에 전자 하나만 결합했을 때 보어 준위 에너지를 eV로 유도하라. (b) 전자와 같은 전하이고 질량이 207배인 음뮤온이 Pb-208(Z=82)에 결합했다. 첫 들뜬 상태에서 바닥 상태로 갈 때의 광자 에너지는? (c) 최소 궤도 반지름을 핵 반지름과 비교하라. 핵자 반지름은 약 10⁻¹⁵ m이다.",
+    "options": [],
+    "answer": null,
+    "explanation": "[AI 정답 및 해설] (a) En≈−13.6Z²/n² eV. (b) 질량 207배를 적용하면 Pb의 첫 들뜬 상태→바닥 상태 방출은 10.2×207×82²≈14.2 MeV. (c) r₁=a₀/(207×82)≈3.12 fm, 핵 반지름은 약 208^(1/3) fm≈5.9 fm."
+  },
+  {
+    "question": "[10.9-P-05] Dy-160은 L²=ℓ(ℓ+1)ℏ²를 따르는 회전체처럼 거동하고 ℓ은 짝수이다. ℓ=2에서 0으로 전이할 때 87 keV 광자를 방출한다. (a) 관성모멘트를 구하라. (b) 구형으로 보고 핵 반지름을 추정하라. (c) 경험식 R=(1.3×10⁻¹⁵ m)A^(1/3)과 비교하라.",
+    "options": [],
+    "answer": null,
+    "explanation": "[AI 정답 및 해설] (a) I=3ℏ²/(87 keV)≈2.39×10⁻⁵⁴ kg·m². (b) I=2MR²/5, M≈160u를 적용하면 R≈4.75 fm. (c) 1.3×160^(1/3)≈7.06 fm으로 구형 강체 모델의 추정치보다 크다."
+  },
+  {
+    "question": "[10.10-P-01] 형상이 같은 두 자이로스코프의 회전판 재료가 각각 알루미늄과 납이다. 스핀 각속력과 토크가 같을 때 어느 쪽이 더 빠르게 세차하는가?",
+    "options": [],
+    "answer": null,
+    "explanation": "[AI 정답 및 해설] 알루미늄 자이로스코프. 같은 크기와 스핀 각속도에서는 관성모멘트 I가 작아 각운동량 Iω가 작으므로 같은 토크가 방향을 더 빠르게 바꾼다."
+  },
+  {
+    "question": "[10.10-P-02] 장난감 자이로스코프로 실험하라. (a) 스핀 축 방향을 빨리 바꿀 때와 방향을 유지한 채 이동할 때 손으로 느끼는 차이를 설명하라. (b) 한쪽 끝을 지지해 위에서 보았을 때 반시계 방향 세차를 만들고, (c) 시계 방향 세차도 만들라. 각각 위·옆에서 본 그림으로 방향을 설명하라.",
+    "options": [],
+    "answer": null,
+    "explanation": "[AI 정답 및 해설] (a) 스핀 축의 방향을 빨리 바꾸려면 ΔL/Δt만큼 토크가 필요하다. 축 방향을 유지한 병진에는 그 토크가 필요 없다. (b,c) 지지점에서 질량중심으로 향하는 r, 아래쪽의 Mg, τ=r×Mg를 그린다. L에 τΔt를 더한 벡터 방향으로 세차하며 스핀을 뒤집으면 세차 방향도 뒤집힌다."
+  },
+  {
+    "question": "[10.10-P-03] 장난감 자이로스코프로 (a) 스핀 각속력을 측정하는 방법을 고안하고 세차율을 예측해 측정과 비교하라. (b) 축을 수평과 거의 수직으로 놓아 세차율을 재고 반대 순서로 반복하라. 스핀 속도가 같을 때 기울기에 대한 세차율의 의존성과 이론 예측을 비교하라.",
+    "options": [],
+    "answer": null,
+    "explanation": "[AI 정답 및 해설] (a) 영상에서 N회전에 걸린 시간 Δt로 ω=2πN/Δt를 측정하고 Ω≈Mgd/(Iω)로 예측한다. (b) 빠른 스핀의 정상 세차에서는 τ=Mgd sinθ, 수평 각운동량 L sinθ이므로 θ가 약분된다. 수평→거의 수직과 역순 측정을 비교하면 축 마찰의 영향을 가늠할 수 있다."
+  },
+  {
+    "question": "[10.10-P-04 (a)] 추가 달린 자이로스코프를 위에서 볼 때 세차 방향은? 축 윗부분이 다음 순간 종이의 어느 쪽으로 움직이는가?",
+    "options": [
+      "시계 방향, 종이 밖으로",
+      "반시계 방향, 종이 안으로"
+    ],
+    "answer": 0,
+    "explanation": "[제공 답안 기반 · answer(2)] 추의 중력 토크가 종이 안쪽을 향한다. 아래쪽을 가리키는 스핀 각운동량에 이 방향의 변화량을 더하면 축 윗부분은 반대로 종이 밖으로 움직인다."
+  },
+  {
+    "question": "[10.10-P-04 (b)] 축이 수직에서 30° 기울어진 자이로스코프에 반지름 15 cm, 질량 3 kg, I=0.06 kg·m²인 로터가 30 rad/s로 돈다. 추가 질량이 없으면 세차하지 않는다. 0.20 kg 추를 로터 중심에서 축을 따라 0.18 m 지점에 매단다(그림 10.14.AA). (b) 한 번의 세차에 걸리는 시간은?",
+    "options": [],
+    "answer": null,
+    "explanation": "[제공 답안 기반 · answer(2)] (a) 위에서 보면 시계 방향이고 축 윗부분은 종이 밖으로 움직인다. (b) L=0.06×30=1.8. Ω=mgd/L≈0.196 rad/s이므로 2π/Ω≈32.1 s. 토크와 L의 수평 성분에 공통으로 들어가는 sin30°가 약분된다."
+  },
+  {
+    "question": "[10.10-P-05] 테두리가 무거운 자전거 바퀴의 축 한쪽 끝을 기둥에 받쳤더니 수평으로 세차한다. 그림 10.14.AB의 스핀 방향일 때 위에서 본 세차 방향이 시계 방향인지 반시계 방향인지 그림과 함께 설명하라.",
+    "options": [],
+    "answer": null,
+    "explanation": "[AI 정답 및 해설] 받침점을 기준으로 τ=rCM×Mg를 그린 뒤, 스핀 화살표에서 오른손으로 L을 정한다. 위에서 본 방향은 L의 수평 성분이 L+τΔt의 수평 성분 쪽으로 도는 방향이다."
+  },
+  {
+    "question": "[10.10-P-06] 바닥에 기울어진 나무 팽이가 그림 10.14.AC 방향으로 빠르게 돈다. (a) 그림에 벡터를 표시해 팽이 축이 움직이는 방향을 설명하라. (b) 스핀 속도가 증가하면, (c) 같은 스핀 속도에서 나무 대신 같은 형상의 강철을 쓰면 운동이 어떻게 바뀌는가?",
+    "options": [],
+    "answer": null,
+    "explanation": "[AI 정답 및 해설] (a) 접촉점에서 질량중심으로 r을 그리고 τ=r×Mg 및 L+τΔt로 축이 움직이는 방향을 구한다. (b) 같은 자세에서 ω가 증가하면 Ω≈Mgd/(Iω)가 작아진다. (c) 형상과 질량 분포 비율이 같으면 M과 I가 같은 비율로 커져 세차율은 같다."
+  }
+];
+
+const ui = Object.fromEntries(
+  [...document.querySelectorAll('[id]')].map(element => [element.id, element])
+);
+const allQuestions = quizData.map((_, index) => index);
+const storageKey = 'phys172-angular-momentum-wrong-v1';
+const modeLabels = { sequence: '순서대로 풀기', random: '랜덤 출제', wrong: '오답 노트' };
+const wrongQuestions = new Set(readWrongQuestions());
+
+let mode = 'sequence';
+let order = [];
+let position = 0;
+let correctCount = 0;
+let gradedCount = 0;
+let responses = new Set();
+let graded = false;
+
+function readWrongQuestions() {
+  try {
+    const saved = JSON.parse(localStorage.getItem(storageKey) || '[]');
+    return Array.isArray(saved) ? saved.filter(index => allQuestions.includes(index)) : [];
+  } catch {
+    return [];
+  }
+}
+
+function shuffle(items) {
+  const copy = [...items];
+  for (let index = copy.length - 1; index > 0; index--) {
+    const other = Math.floor(Math.random() * (index + 1));
+    [copy[index], copy[other]] = [copy[other], copy[index]];
+  }
+  return copy;
+}
+
+function start(nextMode, focus = true) {
+  mode = nextMode;
+  order = mode === 'wrong'
+    ? [...wrongQuestions].sort((a, b) => a - b)
+    : mode === 'random' ? shuffle(allQuestions) : [...allQuestions];
+  position = 0;
+  correctCount = 0;
+  gradedCount = 0;
+  ui.mode.textContent = modeLabels[mode];
+  renderQuestion(focus);
+}
+
+function updateProgress() {
+  ui.progress.max = Math.max(1, order.length);
+  ui.progress.value = gradedCount;
+  ui['progress-label'].textContent = gradedCount + ' / ' + order.length;
+  ui['total-correct'].textContent = correctCount;
+  ui['total-wrong'].textContent = gradedCount - correctCount;
+  ui['wrong-count'].textContent = wrongQuestions.size;
+}
+
+function addAction(label, callback, primary = false) {
+  const button = document.createElement('button');
+  button.type = 'button';
+  button.className = primary ? 'btn primary' : 'btn';
+  button.textContent = label;
+  button.addEventListener('click', callback);
+  ui.actions.append(button);
+  return button;
+}
+
+function clearPanel() {
+  ui.options.replaceChildren();
+  ui.actions.replaceChildren();
+  ui.feedback.hidden = true;
+  ui.results.hidden = true;
+  ui.hint.hidden = true;
+}
+
+function renderQuestion(focus = true) {
+  clearPanel();
+  updateProgress();
+  responses = new Set();
+  graded = false;
+  if (order.length === 0) {
+    ui.reference.textContent = '복습';
+    ui.question.textContent = '오답 노트가 비어 있어요';
+    ui.hint.textContent = '틀린 문제가 생기면 여기에 모여요.';
+    ui.hint.hidden = false;
+    addAction('순서대로 풀기', () => start('sequence'), true);
+  } else {
+    const item = quizData[order[position]];
+    const reference = item.question.match(/^\[([^\]]+)\]\s*/);
+    ui.reference.textContent = (position + 1) + ' / ' + order.length + (reference ? ' · ' + reference[1] : '');
+    ui.question.textContent = reference ? item.question.slice(reference[0].length) : item.question;
+    if (item.options.length) {
+      renderOptions(item);
+    } else {
+      ui.hint.textContent = '서술형 · 답을 적어 본 뒤 해설과 비교하세요.';
+      ui.hint.hidden = false;
+      addAction('정답과 해설 보기', () => revealWritten(item), true);
+    }
+  }
+  if (focus) ui.question.focus();
+}
+
+function renderOptions(item) {
+  const multiple = Array.isArray(item.answer);
+  let submit;
+  if (multiple) {
+    ui.hint.textContent = '복수 선택 · 해당하는 보기를 모두 고른 뒤 정답을 확인하세요.';
+    ui.hint.hidden = false;
+    submit = addAction('정답 확인', () => {
+      const correct = responses.size === item.answer.length && item.answer.every(index => responses.has(index));
+      grade(item, correct);
+    }, true);
+    submit.disabled = true;
+  }
+
+  item.options.forEach((label, index) => {
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.className = 'option';
+    const letter = document.createElement('span');
+    letter.className = 'letter';
+    letter.textContent = String.fromCharCode(65 + index);
+    const optionText = document.createElement('span');
+    optionText.textContent = label;
+    button.append(letter, optionText);
+    if (multiple) button.setAttribute('aria-pressed', 'false');
+    button.addEventListener('click', () => {
+      if (graded) return;
+      if (multiple) {
+        if (responses.has(index)) responses.delete(index);
+        else responses.add(index);
+        button.setAttribute('aria-pressed', String(responses.has(index)));
+        submit.disabled = responses.size === 0;
+      } else {
+        responses.add(index);
+        grade(item, index === item.answer);
+      }
+    });
+    ui.options.append(button);
+  });
+}
+
+function showFeedback(item, title, incorrect = false) {
+  ui.verdict.textContent = title;
+  ui.explanation.textContent = item.explanation;
+  ui.feedback.classList.toggle('bad', incorrect);
+  ui.feedback.hidden = false;
+}
+
+function revealWritten(item) {
+  showFeedback(item, '정답과 해설');
+  ui.actions.replaceChildren();
+  addAction('맞았어요', () => grade(item, true), true).focus();
+  addAction('틀렸어요', () => grade(item, false));
+}
+
+function grade(item, correct) {
+  if (graded) return;
+  graded = true;
+  gradedCount++;
+  if (correct) {
+    correctCount++;
+    wrongQuestions.delete(order[position]);
+  } else {
+    wrongQuestions.add(order[position]);
+  }
+  try {
+    localStorage.setItem(storageKey, JSON.stringify([...wrongQuestions]));
+  } catch {
+    // The current session can still review its mistakes.
+  }
+
+  const answers = Array.isArray(item.answer) ? item.answer : [item.answer];
+  [...ui.options.children].forEach((button, index) => {
+    button.disabled = true;
+    const isAnswer = answers.includes(index);
+    const isWrongSelection = responses.has(index) && !isAnswer;
+    button.classList.toggle('correct', isAnswer);
+    button.classList.toggle('incorrect', isWrongSelection);
+    if (isAnswer || isWrongSelection) {
+      const status = document.createElement('span');
+      status.className = 'option-state';
+      status.textContent = isAnswer ? '정답' : '오답';
+      button.append(status);
+    }
+  });
+  showFeedback(item, correct ? '정답이에요' : '오답이에요', !correct);
+  updateProgress();
+  ui.actions.replaceChildren();
+  if (position + 1 === order.length) {
+    showResults();
+    return;
+  }
+  addAction('다음 문제 →', () => {
+    position++;
+    renderQuestion();
+  }, true).focus();
+}
+
+function showResults() {
+  ui.results.hidden = false;
+  ui.score.textContent = correctCount + ' / ' + order.length;
+  const percentage = correctCount / order.length * 100;
+  ui.accuracy.textContent = new Intl.NumberFormat('ko-KR', { maximumFractionDigits: 1 }).format(percentage) + '%';
+  ui.mode.textContent = '풀이 완료';
+  addAction('처음부터 다시 풀기', () => start(mode === 'random' ? 'random' : 'sequence'), true);
+  if (wrongQuestions.size) addAction('오답 다시 풀기', () => start('wrong'));
+}
+
+function changeMode(nextMode) {
+  if (gradedCount > 0 && gradedCount < order.length
+      && !window.confirm('현재 회차를 끝내고 새로 시작할까요? 오답 기록은 계속 남아요.')) return;
+  start(nextMode);
+}
+
+ui['intro-count'].textContent = '각운동량 원리와 회전 운동 · ' + quizData.length + '문제';
+ui.sequential.addEventListener('click', () => changeMode('sequence'));
+ui.random.addEventListener('click', () => changeMode('random'));
+ui.wrong.addEventListener('click', () => changeMode('wrong'));
+start('sequence', false);
+</script>
+</body>
+</html>
